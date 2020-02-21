@@ -52,7 +52,8 @@ public class WebServer {
   }
 
   public static void main(String[] args) throws Exception {
-    new WebServer();
+    //new WebServer();
+      ActualDBController.getConnection();
   }
 
 }
