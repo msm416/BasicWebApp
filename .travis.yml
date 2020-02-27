@@ -2,7 +2,7 @@ language: java
 jdk:
 - openjdk8
 before_install:
-  echo "ABCD"
+  ls
 script:
   mvn clean verify
 deploy:
