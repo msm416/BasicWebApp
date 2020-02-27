@@ -1,7 +1,7 @@
 language: java
 jdk:
 - openjdk8
-before_script:
+before_install:
   echo "ABCD"
 script:
   mvn clean verify
