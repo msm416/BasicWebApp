@@ -4,11 +4,11 @@ jdk:
 before_install:
   - mvn install:install-file -Dfile=libs/jmock-2.12.0.jar -DgroupId=org.jmock -DartifactId=jmock -Dversion=2.12.0 -Dpackaging=jar
 
-  - mvn install:install-file -Dfile=libs/jmock-2.12.0-tests.jar -DgroupId=org.jmock -DartifactId=jmock -Dversion=2.12.0 -Dpackaging=jar
+  - mvn install:install-file -Dfile=libs/jmock-2.12.0-tests.jar -DgroupId=org.jmock -DartifactId=jmock-t -Dversion=2.12.0 -Dpackaging=jar
 
-  - mvn install:install-file -Dfile=libs/jmock-junit4-2.12.0.jar -DgroupId=org.jmock -DartifactId=jmock -Dversion=2.12.0 -Dpackaging=jar
+  - mvn install:install-file -Dfile=libs/jmock-junit4-2.12.0.jar -DgroupId=org.jmock -DartifactId=jmock-j -Dversion=2.12.0 -Dpackaging=jar
 
-  - mvn install:install-file -Dfile=libs/virt-jmock-2.12.0.jar -DgroupId=org.jmock -DartifactId=jmock -Dversion=2.12.0 -Dpackaging=jar
+  - mvn install:install-file -Dfile=libs/virt-jmock-2.12.0.jar -DgroupId=org.jmock -DartifactId=virt-jmock -Dversion=2.12.0 -Dpackaging=jar
 script:
   mvn clean verify
 deploy:
