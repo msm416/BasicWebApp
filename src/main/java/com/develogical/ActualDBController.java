@@ -10,6 +10,8 @@ public class ActualDBController {
 
     public static Connection getConnection() throws URISyntaxException, SQLException {
         String dbUrl = System.getenv("JDBC_DATABASE_URL");
-        return DriverManager.getConnection(dbUrl);
+        Connection connection = DriverManager.getConnection(dbUrl);
+
+        return connection;
     }
 }
