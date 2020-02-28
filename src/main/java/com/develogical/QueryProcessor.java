@@ -10,7 +10,7 @@ public class QueryProcessor {
             try {
                 return "db lookup result: " + ActualDBController.getConnection().toString();
             } catch (Exception e) {
-                return e.getMessage();
+                return "db lookup result:" + e.getMessage();
             }
         }
         return "We do not support this recipe";

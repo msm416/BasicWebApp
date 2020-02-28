@@ -12,16 +12,11 @@ public class QueryProcessorTest {
 
     @Test
     public void returnsEmptyStringIfCannotProcessQuery() throws Exception {
-        assertThat(queryProcessor.process("test"), is(""));
+        assertThat(queryProcessor.process("!@#%$ASbnf"), is("We do not support this recipe"));
     }
 
     @Test
     public void knowsAboutShakespeare() throws Exception {
-        assertThat(queryProcessor.process("Shakespeare"), containsString("playwright"));
-    }
-
-    @Test
-    public void isNotCaseSensitive() throws Exception {
-        assertThat(queryProcessor.process("shakespeare"), containsString("playwright"));
+        assertThat(queryProcessor.process("how to"), containsString("db lookup result:"));
     }
 }
