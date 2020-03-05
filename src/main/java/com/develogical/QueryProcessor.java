@@ -1,14 +1,14 @@
 package com.develogical;
 
-import java.net.URISyntaxException;
-import java.sql.SQLException;
-
 public class QueryProcessor {
 
     public String process(String query) {
         if (query.toLowerCase().contains("how to")) {
             try {
-                return "db lookup result: " + ActualDBController.getConnection().toString();
+                long startTime = System.currentTimeMillis();
+                int result = ActualDBController.getEmployeesCount();
+                long endTime = System.currentTimeMillis();
+                return "db lookup result - EXECTIME = " + (endTime - startTime) +  " :" + result;
             } catch (Exception e) {
                 return "db lookup result:" + e.getMessage();
             }
