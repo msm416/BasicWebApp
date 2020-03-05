@@ -17,6 +17,6 @@ public class QueryProcessorTest {
 
     @Test
     public void knowsAboutRecipes() throws Exception {
-        assertThat(queryProcessor.process("how to"), containsString("db lookup result:"));
+        assertThat(queryProcessor.process("how to"), containsString("db lookup result"));
     }
 }
