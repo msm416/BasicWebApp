@@ -8,7 +8,8 @@ public class QueryProcessor {
                 long startTime = System.currentTimeMillis();
                 int result = ActualDBController.getEmployeesCount();
                 long endTime = System.currentTimeMillis();
-                return "db lookup result - EXECTIME = " + (endTime - startTime) +  " :" + result;
+                System.out.println("EXECTIME(ms) for getEmployeesCount() = " + (endTime - startTime));
+                return "db lookup result: " + result;
             } catch (Exception e) {
                 return "db lookup result:" + e.getMessage();
             }
