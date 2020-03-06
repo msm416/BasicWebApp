@@ -18,11 +18,10 @@ public class ActualDBController implements DBController {
 
     public String lookupMeal(String meal) {
         String SQL = "SELECT ingredients FROM meals WHERE name = ?";
-        String ingredientsAsStr = "" ;
+        String ingredientsAsStr = "";
 
         try (Connection conn = getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(SQL))
-        {
+             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
             pstmt.setString(1, meal);
             ResultSet rs = pstmt.executeQuery();
             rs.next();
@@ -38,7 +37,10 @@ public class ActualDBController implements DBController {
     @Override
     public List<Ingredient> lookupMealIngredients(String meal) {
         List<Ingredient> ingredients = new ArrayList<>();
-        for(String ingredientAsStr : lookupMeal(meal).split(",")) {
+        for (String ingredientAsStr : lookupMeal(meal).split(",")) {
+            if(ingredientAsStr.equals("")) {
+                continue;
+            }
             ingredients.add(Ingredient.parseIngredient(ingredientAsStr));
         }
         return ingredients;
@@ -46,6 +48,26 @@ public class ActualDBController implements DBController {
 
     @Override
     public double lookupIngredientNutrition(Ingredient ingredient) {
-        return 0;
+        String SQL = "SELECT nutritional_info FROM ingredients WHERE name = ?";
+        double ingredientKcal = 0;
+
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setString(1, ingredient.name);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            String nutrInfo = rs.getString("nutritional_info");
+            ingredientKcal =
+                    Integer.parseInt(
+                            nutrInfo
+                                    .substring(0, nutrInfo.length() - "kcal".length()))
+                    * ingredient.weightInGrams
+                    / 100;
+            System.out.println("Our ingredient has kcals: " + ingredientKcal);
+        } catch (SQLException | URISyntaxException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return ingredientKcal;
     }
 }
