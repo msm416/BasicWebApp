@@ -3,6 +3,8 @@ package com.develogical;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ActualDBController implements DBController {
 
@@ -14,24 +16,36 @@ public class ActualDBController implements DBController {
         return connection;
     }
 
-    @Override
-    public String lookup(String input) {
-        return null;
-    }
-
-    public static int getEmployeesCount() {
-        String SQL = "SELECT count(*) FROM employees";
-        int count = 0;
+    public String lookupMeal(String meal) {
+        String SQL = "SELECT ingredients FROM meals WHERE name = ?";
+        String ingredientsAsStr = "" ;
 
         try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(SQL)) {
+             PreparedStatement pstmt = conn.prepareStatement(SQL))
+        {
+            pstmt.setString(1, meal);
+            ResultSet rs = pstmt.executeQuery();
             rs.next();
-            count = rs.getInt(1);
+            ingredientsAsStr = rs.getString("ingredients");
+            System.out.println("Our ingredients are: " + ingredientsAsStr);
         } catch (SQLException | URISyntaxException e) {
             System.out.println(e.getMessage());
         }
 
-        return count;
+        return ingredientsAsStr;
+    }
+
+    @Override
+    public List<Ingredient> lookupMealIngredients(String meal) {
+        List<Ingredient> ingredients = new ArrayList<>();
+        for(String ingredientAsStr : lookupMeal(meal).split(",")) {
+            ingredients.add(Ingredient.parseIngredient(ingredientAsStr));
+        }
+        return ingredients;
+    }
+
+    @Override
+    public double lookupIngredientNutrition(Ingredient ingredient) {
+        return 0;
     }
 }

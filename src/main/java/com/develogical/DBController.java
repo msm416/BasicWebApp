@@ -1,5 +1,8 @@
 package com.develogical;
 
+import java.util.List;
+
 public interface DBController {
-    String lookup(String input);
+    List<Ingredient> lookupMealIngredients(String meal);
+    double lookupIngredientNutrition(Ingredient ingredient);
 }

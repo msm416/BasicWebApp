@@ -1,19 +1,25 @@
 package com.develogical;
 
-public class QueryProcessor {
+import java.util.List;
 
-    public String process(String query) {
-        if (query.toLowerCase().contains("how to")) {
-            try {
-                long startTime = System.currentTimeMillis();
-                int result = ActualDBController.getEmployeesCount();
-                long endTime = System.currentTimeMillis();
-                System.out.println("EXECTIME(ms) for getEmployeesCount() = " + (endTime - startTime));
-                return "db lookup result: " + result;
-            } catch (Exception e) {
-                return "db lookup result:" + e.getMessage();
-            }
+public class QueryProcessor {
+    private final DBController dbController;
+
+    public QueryProcessor(DBController dbController) {
+        this.dbController = dbController;
+    }
+
+    public String getNutritionalData(String meal) {
+        long startTime = System.currentTimeMillis();
+        List<Ingredient> mealIngredients = dbController.lookupMealIngredients(meal);
+        long endTime = System.currentTimeMillis();
+        System.out.println("EXECTIME(ms) for lookupMealIngredients() = " + (endTime - startTime));
+        System.out.println("nb of ingredients in db: " + mealIngredients.size());
+
+        double kcals = 0.0;
+        for(Ingredient ingredient : mealIngredients) {
+            kcals += dbController.lookupIngredientNutrition(ingredient);
         }
-        return "We do not support this recipe";
+        return "db lookup result: " + kcals;
     }
 }

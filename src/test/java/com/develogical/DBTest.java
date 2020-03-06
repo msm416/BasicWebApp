@@ -1,19 +1,20 @@
 package com.develogical;
 
-import example.classes.UserDetailsService;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import utilities.distributions.NormalDistr;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.assertThat;
 
 public class DBTest {
+
+    final List<Ingredient> mealIngredients = new ArrayList<>();
 
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery();
@@ -25,13 +26,13 @@ public class DBTest {
         final DBController dbController = context.mock(DBController.class);
 
         context.checking(new Expectations() {{
-            exactly(1).of(dbController).lookup(recipeName);
-            will(returnValue("recipe is: ..."));
+            exactly(1).of(dbController).lookupMealIngredients(recipeName);
+            will(returnValue(mealIngredients));
             inTime(new NormalDistr(100, 10));
         }});
 
         long startTime = System.currentTimeMillis();
-        new Forum(dbController).lookupArticle(recipeName);
+        new QueryProcessor(dbController).getNutritionalData(recipeName);
         long endTime = System.currentTimeMillis();
 
         assertThat(context.getSingleVirtualTime(true)
