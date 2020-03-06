@@ -24,6 +24,6 @@ public class QueryProcessor {
             System.out.println("EXECTIME(ms) for lookupIngredientNutrition() = " + (endTime - startTime));
         }
         System.out.println("nb of kcals in meal: "  + kcals);
-        return "db lookup result: " + kcals;
+        return "nb of kcals in meal: "  + kcals;
     }
 }

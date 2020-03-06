@@ -12,11 +12,11 @@ public class QueryProcessorTest {
 
     @Test
     public void returnsEmptyStringIfCannotProcessQuery() throws Exception {
-        assertThat(queryProcessor.getNutritionalData("!@#%$ASbnf"), is("db lookup result: 0.0"));
+        assertThat(queryProcessor.getNutritionalData("!@#%$ASbnf"), is("nb of kcals in meal: 0.0"));
     }
 
     @Test
     public void knowsAboutRecipes() throws Exception {
-        assertThat(queryProcessor.getNutritionalData("greek salad"), containsString("db lookup result"));
+        assertThat(queryProcessor.getNutritionalData("greek salad"), containsString("nb of kcals in meal: "));
     }
 }
