@@ -24,7 +24,7 @@ public class DBTest {
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
     @Test
-    public void lookupRecipeArticleInDB() {
+    public void getNutritionalDataForMeal() {
         final String meal = "cheeseburger";
 
         final DBController dbController = context.mock(DBController.class);
