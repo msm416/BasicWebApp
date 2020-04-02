@@ -19,14 +19,14 @@ public class DBTest {
         add(new Ingredient("ingr1", 100));
         add(new Ingredient("ingr2", 100));
         add(new Ingredient("ingr3", 100));
-        add(new Ingredient("ingr1", 100));
-        add(new Ingredient("ingr2", 100));
-        add(new Ingredient("ingr3", 100));
-        add(new Ingredient("ingr1", 100));
-        add(new Ingredient("ingr2", 100));
-        add(new Ingredient("ingr3", 100));
-        add(new Ingredient("ingr1", 100));
-        add(new Ingredient("ingr3", 100));
+        add(new Ingredient("ingr4", 100));
+        add(new Ingredient("ingr5", 100));
+        add(new Ingredient("ingr6", 100));
+        add(new Ingredient("ingr7", 100));
+        add(new Ingredient("ingr8", 100));
+        add(new Ingredient("ingr9", 100));
+        add(new Ingredient("ingr10", 100));
+        add(new Ingredient("ingr11", 100));
     }};
 
     @Rule
@@ -43,14 +43,12 @@ public class DBTest {
                         exactly(1).of(dbController).lookupMealIngredients(meal);
                         will(returnValue(mealIngredients));
                         inTime(new NormalDistr(100, 10));
-                        exactly(1).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
+                        exactly(mealIngredients.size()).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
                         will(returnValue(200.0));
                         inTime(new NormalDistr(700, 10));
                     }});
 
-                    long startTime = System.currentTimeMillis();
                     new QueryProcessor(dbController).getNutritionalData(meal);
-                    long endTime = System.currentTimeMillis();
                 });
         assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(8000.0)));
     }
