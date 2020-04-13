@@ -4,6 +4,7 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import umontreal.ssj.probdist.NormalDist;
 import utilities.distributions.NormalDistr;
 
 import java.util.ArrayList;
@@ -42,10 +43,11 @@ public class DBTest {
                     context.checking(new Expectations() {{
                         exactly(1).of(dbController).lookupMealIngredients(meal);
                         will(returnValue(mealIngredients));
-                        inTime(new NormalDistr(100, 10));
+                        inTime(new NormalDist(100, 10));
+                        //inTime(new DataDistr());
                         exactly(mealIngredients.size()).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
                         will(returnValue(200.0));
-                        inTime(new NormalDistr(700, 10));
+                        inTime(new NormalDist(700, 10));
                     }});
 
                     new QueryProcessor(dbController).getNutritionalData(meal);

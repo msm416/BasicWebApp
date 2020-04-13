@@ -7,6 +7,14 @@
     <version>1.0-SNAPSHOT</version>
     <artifactId>SkeletonWebApp</artifactId>
     <dependencies>
+
+        <dependency>
+            <groupId>ca.umontreal.iro.simul</groupId>
+            <artifactId>ssj</artifactId>
+            <scope>compile</scope>
+            <version>3.3.0</version>
+        </dependency>
+
         <dependency>
             <groupId>org.jmock</groupId>
             <artifactId>jmock</artifactId>

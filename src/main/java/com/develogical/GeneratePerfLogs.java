@@ -13,14 +13,14 @@ import java.util.regex.Pattern;
 
 public class GeneratePerfLogs {
     public static void main(String[] args) {
-        //createLogFile();
-        try {
-            ArrayList<Integer> samples = getSamplesFromLog("logs.txt",
-                    "lookupIngredientNutrition");
-            System.out.println("0");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        createLogFile();
+//        try {
+//            ArrayList<Integer> samples = getSamplesFromLog("logs.txt",
+//                    "lookupIngredientNutrition");
+//            System.out.println("0");
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static void createLogFile() {
