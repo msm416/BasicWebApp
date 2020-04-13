@@ -1,26 +1,30 @@
 package com.develogical;
 
+import umontreal.ssj.gof.GofStat;
+import umontreal.ssj.probdist.ContinuousDistribution;
+import umontreal.ssj.probdist.Distribution;
+import umontreal.ssj.probdist.NormalDist;
+import umontreal.ssj.probdist.UniformDist;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.IntStream;
+
+import static java.util.Comparator.comparingDouble;
 
 public class GeneratePerfLogs {
     public static void main(String[] args) {
         createLogFile();
-//        try {
-//            ArrayList<Integer> samples = getSamplesFromLog("logs.txt",
-//                    "lookupIngredientNutrition");
-//            System.out.println("0");
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
+                "lookupIngredientNutrition");
+
+        //getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
+
     }
 
     public static void createLogFile() {
@@ -82,20 +86,51 @@ public class GeneratePerfLogs {
         }
     }
 
-    public static ArrayList<Integer> getSamplesFromLog(String logfile, String methodName) throws IOException {
-        ArrayList<Integer> samples = new ArrayList<>();
-        String logfileContent = new String(Files.readAllBytes(Paths.get(logfile)), StandardCharsets.UTF_8);
+    public static ArrayList<Double> getSamplesFromLog(String logfile, String methodName) {
+        ArrayList<Double> samples = new ArrayList<>();
+        String logfileContent = null;
+        try {
+            logfileContent = new String(Files.readAllBytes(Paths.get(logfile)), StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         Pattern pattern = Pattern.compile(methodName + "\\(\\):\\[(?<samplesAsStr>[0-9]+(,[0-9]+)+)\\]");
         Matcher matcher = pattern.matcher(logfileContent);
-        if(matcher.find()) {
+        if (matcher.find()) {
             String[] parts = matcher.group("samplesAsStr").split(",");
             for (String part : parts) {
-                if(part.length() == 0) {
+                if (part.length() == 0) {
                     continue;
                 }
-                samples.add(Integer.parseInt(part));
+                samples.add(Double.parseDouble(part));
             }
         }
         return samples;
+    }
+
+    public static Distribution getBestDistributionFromEmpiricalData(ArrayList<Double> data) {
+        double[] dataArray = data.stream().mapToDouble(Double::doubleValue).toArray();
+
+        List<Distribution> distributionList = new ArrayList() {{
+            add(NormalDist.getInstanceFromMLE(dataArray, dataArray.length));
+            add(UniformDist.getInstanceFromMLE(dataArray, dataArray.length));
+        }};
+
+        int distributionListLen = distributionList.size();
+        double[][] sval = new double[distributionList.size()][3];
+        double[][] pval = new double[distributionList.size()][3];
+
+        int maxPvalIndex = -1;
+        double maxPval = -1d;
+
+        for (int i = 0; i < distributionListLen; i++) {
+            GofStat.kolmogorovSmirnov(dataArray, (ContinuousDistribution) distributionList.get(i), sval[i], pval[i]);
+            if (maxPval < pval[i][2]) {
+                maxPval = pval[i][2];
+                maxPvalIndex = i;
+            }
+        }
+
+        return distributionList.get(maxPvalIndex);
     }
 }

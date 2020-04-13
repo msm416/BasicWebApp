@@ -10,6 +10,8 @@ import utilities.distributions.NormalDistr;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.develogical.GeneratePerfLogs.getBestDistributionFromEmpiricalData;
+import static com.develogical.GeneratePerfLogs.getSamplesFromLog;
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.junit.Assert.assertThat;
 import static utilities.distributions.PerfStatistics.hasPercentile;
@@ -43,8 +45,8 @@ public class DBTest {
                     context.checking(new Expectations() {{
                         exactly(1).of(dbController).lookupMealIngredients(meal);
                         will(returnValue(mealIngredients));
-                        inTime(new NormalDist(100, 10));
-                        //inTime(new DataDistr());
+                        inTime(getBestDistributionFromEmpiricalData(
+                                getSamplesFromLog("logs.txt", "lookupIngredientNutrition")));
                         exactly(mealIngredients.size()).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
                         will(returnValue(200.0));
                         inTime(new NormalDist(700, 10));
