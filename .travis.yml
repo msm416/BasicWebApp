@@ -1,6 +1,8 @@
 language: java
 jdk:
 - openjdk8
+env:
+- JDBC_DATABASE_URL=jdbc:postgresql://ec2-54-246-89-234.eu-west-1.compute.amazonaws.com:5432/d64jmk36o5q2ek?user=biceeaghlflnik&password=5f10eebb1e334885490101e2f6835a1c0da020f477662d7eacb567ad87e2f351&sslmode=require
 script:
   mvn clean verify
 deploy:
