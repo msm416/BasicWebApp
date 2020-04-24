@@ -35,6 +35,7 @@ public class DBTest {
 
     @Test
     public void getNutritionalDataForMeal() {
+        System.out.println();
         final String meal = "cheeseburger";
 
         final DBController dbController = context.mock(DBController.class);
@@ -64,7 +65,7 @@ public class DBTest {
                 exactly(1).of(dbController).lookupTopMealByComplexity(dishComplexity);
                 will(returnValue("sampleMeal:ingr1, ingr2"));
                 inTime(getBestDistributionFromEmpiricalData(
-                        getSamplesFromLog("logs.txt", "lookupIngredientNutrition")));
+                        getSamplesFromLog("logs.txt", "lookupTopMealByComplexity")));
                 atMost(5).of(dbController).lookupOnApiIngredientDetails(with(any(String.class)));
                 //will(returnValue("nutritionalValue:..."));
                 inTime(new NormalDist(700, 10));
@@ -72,6 +73,6 @@ public class DBTest {
 
             new QueryProcessor(dbController).suggestAMeal(dishComplexity);
         });
-        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(8000.0)));
+        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(2000.0)));
     }
 }

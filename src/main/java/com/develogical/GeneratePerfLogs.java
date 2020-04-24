@@ -21,11 +21,14 @@ import static java.util.Comparator.comparingDouble;
 public class GeneratePerfLogs {
     public static void main(String[] args) {
 //        createLogFile();
+        long start = System.currentTimeMillis();
 
-//        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
-//                "lookupIngredientNutrition");
-//
-//        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
+        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
+                "lookupIngredientNutrition");
+
+        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupOnApiIngredientDetails"));
+
+        System.out.println(System.currentTimeMillis() - start);
 
 //        try {
 //            runForSomeTimeAndGenerateLogsOnHeroku();
@@ -131,6 +134,7 @@ public class GeneratePerfLogs {
                     continue;
                 }
                 samples.add(Double.parseDouble(part));
+
             }
         }
         return samples;
