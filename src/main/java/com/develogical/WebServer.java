@@ -26,13 +26,22 @@ public class WebServer {
     server.start();
   }
 
+  //TODO: REFACTOR THE CODE BELOW WITH 2 PARAMETERS
+  //TODO: API CLASS (?)
+
   static class Website extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
       String query = req.getParameter("q");
       if (query == null) {
-        new IndexPage().writeTo(resp);
+        String queryOtherParam = req.getParameter("t");
+        if(queryOtherParam == null) {
+          new IndexPage().writeTo(resp);
+        } else {
+          int complexity = Integer.parseInt(queryOtherParam);
+          new ResultsPage(queryOtherParam, new QueryProcessor(new ActualDBController()).suggestAMeal(complexity)).writeTo(resp);
+        }
       } else {
         new ResultsPage(query, new QueryProcessor(new ActualDBController()).getNutritionalData(query)).writeTo(resp);
       }

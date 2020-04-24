@@ -7,6 +7,7 @@ import umontreal.ssj.gof.GofStat;
 import umontreal.ssj.probdist.*;
 
 import java.io.*;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -20,10 +21,27 @@ import static java.util.Comparator.comparingDouble;
 public class GeneratePerfLogs {
     public static void main(String[] args) {
         //createLogFile();
-        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
-                "lookupIngredientNutrition");
 
-        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
+//        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
+//                "lookupIngredientNutrition");
+//
+//        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
+
+        try {
+            runForSomeTimeAndGenerateLogsOnHeroku();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void runForSomeTimeAndGenerateLogsOnHeroku() throws InterruptedException,
+            UnsupportedEncodingException, UnirestException {
+
+        HttpResponse<String> response = Unirest.get("https://mmorpg-perf.herokuapp.com/?q=" +
+                URLEncoder.encode("canned spam", "UTF-8"))
+                .asString();
+
+        System.out.println(response.getStatus());
     }
 
     public static void createLogFile() {
@@ -78,7 +96,7 @@ public class GeneratePerfLogs {
                 System.out.println("SUCCESFULLY GENNERATED LOG FILES.");
                 System.exit(0);
             } else {
-                System.out.println("BAAAAAAAAAAAd");
+                System.out.println("SOMETHING BAD HAPPENED");
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();

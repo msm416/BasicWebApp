@@ -26,4 +26,5 @@ public class QueryProcessorTest {
 //    public void suggestingAMealWithComplexityMinimumReturnsSpam() throws Exception {
 //        assertThat(queryProcessor.suggestAMeal(1), is("canned spam"));
 //    }
+
 }
