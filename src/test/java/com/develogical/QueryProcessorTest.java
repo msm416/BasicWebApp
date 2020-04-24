@@ -19,4 +19,9 @@ public class QueryProcessorTest {
     public void knowsAboutRecipes() throws Exception {
         assertThat(queryProcessor.getNutritionalData("greek salad"), containsString("nb of kcals in meal: "));
     }
+
+    @Test
+    public void suggestingAMealWithComplexityMinimumReturnsSpam() throws Exception {
+        assertThat(queryProcessor.suggestAMeal(1), is("canned spam"));
+    }
 }

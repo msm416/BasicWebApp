@@ -1,10 +1,10 @@
 package com.develogical;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import umontreal.ssj.gof.GofStat;
-import umontreal.ssj.probdist.ContinuousDistribution;
-import umontreal.ssj.probdist.Distribution;
-import umontreal.ssj.probdist.NormalDist;
-import umontreal.ssj.probdist.UniformDist;
+import umontreal.ssj.probdist.*;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -19,12 +19,11 @@ import static java.util.Comparator.comparingDouble;
 
 public class GeneratePerfLogs {
     public static void main(String[] args) {
-        createLogFile();
+        //createLogFile();
         ArrayList<Double> samples = getSamplesFromLog("logs.txt",
                 "lookupIngredientNutrition");
 
-        //getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
-
+        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
     }
 
     public static void createLogFile() {
@@ -108,12 +107,14 @@ public class GeneratePerfLogs {
         return samples;
     }
 
+    // This method is based on Kolmogorov Smirnov test, but any other could work.
     public static Distribution getBestDistributionFromEmpiricalData(ArrayList<Double> data) {
         double[] dataArray = data.stream().mapToDouble(Double::doubleValue).toArray();
 
         List<Distribution> distributionList = new ArrayList() {{
             add(NormalDist.getInstanceFromMLE(dataArray, dataArray.length));
             add(UniformDist.getInstanceFromMLE(dataArray, dataArray.length));
+            add(CauchyDist.getInstanceFromMLE(dataArray, dataArray.length));
         }};
 
         int distributionListLen = distributionList.size();

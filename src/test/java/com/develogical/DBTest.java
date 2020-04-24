@@ -5,10 +5,8 @@ import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
 import umontreal.ssj.probdist.NormalDist;
-import utilities.distributions.NormalDistr;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import static com.develogical.GeneratePerfLogs.getBestDistributionFromEmpiricalData;
 import static com.develogical.GeneratePerfLogs.getSamplesFromLog;
@@ -46,14 +44,34 @@ public class DBTest {
                         exactly(1).of(dbController).lookupMealIngredients(meal);
                         will(returnValue(mealIngredients));
                         inTime(getBestDistributionFromEmpiricalData(
-                                getSamplesFromLog("logs.txt", "lookupIngredientNutrition")));
+                                getSamplesFromLog("logs.txt", "lookupMealIngredients")));
                         exactly(mealIngredients.size()).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
                         will(returnValue(200.0));
-                        inTime(new NormalDist(700, 10));
+                        inTime(new NormalDist(100, 10));
                     }});
 
                     new QueryProcessor(dbController).getNutritionalData(meal);
                 });
+        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(8000.0)));
+    }
+
+    @Test
+    public void getNutritionalDataForSuggestedMeal() {
+        final DBController dbController = context.mock(DBController.class);
+        final int dishComplexity = 3;
+        context.repeat(1000, () -> {
+            context.checking(new Expectations() {{
+                exactly(1).of(dbController).lookupTopMealByComplexity(dishComplexity);
+                will(returnValue("sampleMeal:ingr1, ingr2"));
+                inTime(getBestDistributionFromEmpiricalData(
+                        getSamplesFromLog("logs.txt", "lookupIngredientNutrition")));
+                atMost(5).of(dbController).lookupOnApiIngredientDetails(with(any(String.class)));
+                //will(returnValue("nutritionalValue:..."));
+                inTime(new NormalDist(700, 10));
+            }});
+
+            new QueryProcessor(dbController).suggestAMeal(dishComplexity);
+        });
         assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(8000.0)));
     }
 }

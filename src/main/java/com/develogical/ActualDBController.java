@@ -2,13 +2,19 @@ package com.develogical;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ActualDBController implements DBController {
 
-    //TODO: Measure time in ADBC, log times to heroku, pull from heroku ^ build model
     public static Connection getConnection() throws URISyntaxException, SQLException {
         String dbUrl = System.getenv("JDBC_DATABASE_URL");
         Connection connection = DriverManager.getConnection(dbUrl);
@@ -38,7 +44,7 @@ public class ActualDBController implements DBController {
     public List<Ingredient> lookupMealIngredients(String meal) {
         List<Ingredient> ingredients = new ArrayList<>();
         for (String ingredientAsStr : lookupMeal(meal).split(",")) {
-            if(ingredientAsStr.equals("")) {
+            if (ingredientAsStr.equals("")) {
                 continue;
             }
             ingredients.add(Ingredient.parseIngredient(ingredientAsStr));
@@ -61,13 +67,51 @@ public class ActualDBController implements DBController {
                     Integer.parseInt(
                             nutrInfo
                                     .substring(0, nutrInfo.length() - "kcal".length()))
-                    * ingredient.weightInGrams
-                    / 100;
+                            * ingredient.weightInGrams
+                            / 100;
             System.out.println("Our ingredient has kcals: " + ingredientKcal);
         } catch (SQLException | URISyntaxException e) {
             System.out.println(e.getMessage());
         }
 
         return ingredientKcal;
+    }
+
+    @Override
+    public String lookupTopMealByComplexity(int dishComplexity) {
+        String SQL = "SELECT NAME, INGREDIENTS FROM MEALS WHERE NUM_INGREDIENTS <= ? ORDER BY NUM_INGREDIENTS DESC LIMIT 1;\n";
+        String suggestedMeal = "";
+        try (Connection conn = getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(SQL)) {
+            pstmt.setInt(1, dishComplexity);
+            ResultSet rs = pstmt.executeQuery();
+            rs.next();
+            suggestedMeal = rs.getString("name");
+            suggestedMeal +=":";
+            suggestedMeal += rs.getString("ingredients");
+            System.out.println("Our suggested meal is: " + suggestedMeal);
+        } catch (SQLException | URISyntaxException e) {
+            System.out.println(e.getMessage());
+        }
+
+        return suggestedMeal;
+    }
+
+    @Override
+    public void lookupOnApiIngredientDetails(String ingredient) {
+        String responseMsg;
+        HttpResponse<String> response;
+        try {
+            response = Unirest.get("https://edamam-food-and-grocery-database.p.rapidapi.com/parser?ingr=" +
+                    URLEncoder.encode(ingredient, StandardCharsets.UTF_8))
+                    .header("x-rapidapi-host", "edamam-food-and-grocery-database.p.rapidapi.com")
+                    .header("x-rapidapi-key", "14e5a268d5mshd3e603cee2da246p162b02jsnb4e5c036d21a")
+                    .asString();
+            responseMsg = response.getStatus() + "";
+        } catch (UnirestException e) {
+            e.printStackTrace();
+            responseMsg = e.getMessage();
+        }
+        //System.out.println(responseMsg);
     }
 }
