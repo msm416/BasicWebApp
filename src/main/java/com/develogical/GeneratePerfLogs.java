@@ -114,7 +114,8 @@ public class GeneratePerfLogs {
         List<Distribution> distributionList = new ArrayList() {{
             add(NormalDist.getInstanceFromMLE(dataArray, dataArray.length));
             add(UniformDist.getInstanceFromMLE(dataArray, dataArray.length));
-            add(CauchyDist.getInstanceFromMLE(dataArray, dataArray.length));
+            add(LaplaceDist.getInstanceFromMLE(dataArray, dataArray.length));
+            //add(CauchyDist.getInstanceFromMLE(dataArray, dataArray.length));
         }};
 
         int distributionListLen = distributionList.size();
