@@ -1,5 +1,6 @@
 package com.develogical;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -103,12 +104,12 @@ public class ActualDBController implements DBController {
         HttpResponse<String> response;
         try {
             response = Unirest.get("https://edamam-food-and-grocery-database.p.rapidapi.com/parser?ingr=" +
-                    URLEncoder.encode(ingredient, StandardCharsets.UTF_8))
+                    URLEncoder.encode(ingredient, "UTF-8"))
                     .header("x-rapidapi-host", "edamam-food-and-grocery-database.p.rapidapi.com")
                     .header("x-rapidapi-key", "14e5a268d5mshd3e603cee2da246p162b02jsnb4e5c036d21a")
                     .asString();
             responseMsg = response.getStatus() + "";
-        } catch (UnirestException e) {
+        } catch (UnirestException | UnsupportedEncodingException e) {
             e.printStackTrace();
             responseMsg = e.getMessage();
         }
