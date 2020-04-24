@@ -14,7 +14,7 @@ public class QueryProcessor {
         List<Ingredient> mealIngredients = dbController.lookupMealIngredients(meal);
         long endTime = System.currentTimeMillis();
         System.out.println("EXECTIME(ms) for lookupMealIngredients() = " + (endTime - startTime));
-        System.out.println("nb of ingredients in meal: " + mealIngredients.size());
+        //System.out.println("nb of ingredients in meal: " + mealIngredients.size());
 
         double kcals = 0.0;
         for(Ingredient ingredient : mealIngredients) {
@@ -23,7 +23,7 @@ public class QueryProcessor {
             endTime = System.currentTimeMillis();
             System.out.println("EXECTIME(ms) for lookupIngredientNutrition() = " + (endTime - startTime));
         }
-        System.out.println("nb of kcals in meal: "  + kcals);
+        //System.out.println("nb of kcals in meal: "  + kcals);
         return "nb of kcals in meal: "  + kcals;
     }
 

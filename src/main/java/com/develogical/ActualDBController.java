@@ -33,7 +33,7 @@ public class ActualDBController implements DBController {
             ResultSet rs = pstmt.executeQuery();
             rs.next();
             ingredientsAsStr = rs.getString("ingredients");
-            System.out.println("Our ingredients are: " + ingredientsAsStr);
+           // System.out.println("Our ingredients are: " + ingredientsAsStr);
         } catch (SQLException | URISyntaxException e) {
             System.out.println(e.getMessage());
         }
@@ -70,7 +70,7 @@ public class ActualDBController implements DBController {
                                     .substring(0, nutrInfo.length() - "kcal".length()))
                             * ingredient.weightInGrams
                             / 100;
-            System.out.println("Our ingredient has kcals: " + ingredientKcal);
+            //System.out.println("Our ingredient has kcals: " + ingredientKcal);
         } catch (SQLException | URISyntaxException e) {
             System.out.println(e.getMessage());
         }
@@ -90,7 +90,7 @@ public class ActualDBController implements DBController {
             suggestedMeal = rs.getString("name");
             suggestedMeal +=":";
             suggestedMeal += rs.getString("ingredients");
-            System.out.println("Our suggested meal is: " + suggestedMeal);
+            //System.out.println("Our suggested meal is: " + suggestedMeal);
         } catch (SQLException | URISyntaxException e) {
             System.out.println(e.getMessage());
         }

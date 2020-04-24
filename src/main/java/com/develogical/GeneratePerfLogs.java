@@ -20,28 +20,39 @@ import static java.util.Comparator.comparingDouble;
 
 public class GeneratePerfLogs {
     public static void main(String[] args) {
-        //createLogFile();
+//        createLogFile();
 
 //        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
 //                "lookupIngredientNutrition");
 //
 //        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
 
-        try {
-            runForSomeTimeAndGenerateLogsOnHeroku();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            runForSomeTimeAndGenerateLogsOnHeroku();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     public static void runForSomeTimeAndGenerateLogsOnHeroku() throws InterruptedException,
             UnsupportedEncodingException, UnirestException {
-
-        HttpResponse<String> response = Unirest.get("https://mmorpg-perf.herokuapp.com/?q=" +
-                URLEncoder.encode("canned spam", "UTF-8"))
-                .asString();
-
-        System.out.println(response.getStatus());
+        HttpResponse<String> response;
+        String[] qParams = {"greek salad", "ham sandwich", "cheese omelette", "sardines on toast", "canned spam"};
+        for(int j = 0; j < 100; j++) {
+            for (int i = 0; i < 5; i++) {
+                response = Unirest.get("https://mmorpg-perf.herokuapp.com/?q=" +
+                        URLEncoder.encode(qParams[i], "UTF-8"))
+                        .asString();
+                System.out.println(response);
+                Thread.sleep(2000);
+                response = Unirest.get("https://mmorpg-perf.herokuapp.com/?t=" +
+                        i + 1)
+                        .asString();
+                System.out.println(response);
+                Thread.sleep(2000);
+            }
+            Thread.sleep(2);
+        }
     }
 
     public static void createLogFile() {
