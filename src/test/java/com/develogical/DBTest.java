@@ -4,6 +4,8 @@ import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.junit.Rule;
 import org.junit.Test;
+import umontreal.ssj.probdist.Distribution;
+import umontreal.ssj.probdist.LaplaceDist;
 import umontreal.ssj.probdist.NormalDist;
 
 import java.util.ArrayList;
@@ -59,16 +61,17 @@ public class DBTest {
     @Test
     public void getNutritionalDataForSuggestedMeal() {
         final DBController dbController = context.mock(DBController.class);
+        final Distribution ltmbyDistr = getBestDistributionFromEmpiricalData(
+                getSamplesFromLog("logs.txt", "lookupTopMealByComplexity"));
         final int dishComplexity = 3;
         context.repeat(1000, () -> {
             context.checking(new Expectations() {{
                 exactly(1).of(dbController).lookupTopMealByComplexity(dishComplexity);
                 will(returnValue("sampleMeal:ingr1, ingr2"));
-                inTime(getBestDistributionFromEmpiricalData(
-                        getSamplesFromLog("logs.txt", "lookupTopMealByComplexity")));
+                inTime(ltmbyDistr);
                 atMost(5).of(dbController).lookupOnApiIngredientDetails(with(any(String.class)));
                 //will(returnValue("nutritionalValue:..."));
-                inTime(new NormalDist(700, 10));
+                inTime(new LaplaceDist(360.0, 67.4));
             }});
 
             new QueryProcessor(dbController).suggestAMeal(dishComplexity);
