@@ -37,17 +37,17 @@ public class DBTest {
 
     @Test
     public void getNutritionalDataForMeal() {
-        System.out.println();
-        final String meal = "cheeseburger";
-
         final DBController dbController = context.mock(DBController.class);
 
+        final Distribution lmiDistr = getBestDistributionFromEmpiricalData(
+                getSamplesFromLog("logs.txt", "lookupMealIngredients"));
+
+        final String meal = "cheeseburger";
         context.repeat(1000, () -> {
                     context.checking(new Expectations() {{
                         exactly(1).of(dbController).lookupMealIngredients(meal);
                         will(returnValue(mealIngredients));
-                        inTime(getBestDistributionFromEmpiricalData(
-                                getSamplesFromLog("logs.txt", "lookupMealIngredients")));
+                        inTime(lmiDistr);
                         exactly(mealIngredients.size()).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
                         will(returnValue(200.0));
                         inTime(new NormalDist(100, 10));
@@ -61,9 +61,12 @@ public class DBTest {
     @Test
     public void getNutritionalDataForSuggestedMeal() {
         final DBController dbController = context.mock(DBController.class);
+
         final Distribution ltmbyDistr = getBestDistributionFromEmpiricalData(
                 getSamplesFromLog("logs.txt", "lookupTopMealByComplexity"));
+
         final int dishComplexity = 3;
+
         context.repeat(1000, () -> {
             context.checking(new Expectations() {{
                 exactly(1).of(dbController).lookupTopMealByComplexity(dishComplexity);
