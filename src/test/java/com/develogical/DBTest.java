@@ -67,7 +67,7 @@ public class DBTest {
 
         final int dishComplexity = 3;
 
-        context.repeat(1000, () -> {
+        context.repeat(100, () -> {
             context.checking(new Expectations() {{
                 exactly(1).of(dbController).lookupTopMealByComplexity(dishComplexity);
                 will(returnValue("sampleMeal:ingr1, ingr2"));

@@ -3,40 +3,42 @@
     .bar text { fill: #fff; font: 10px sans-serif; }
 </style><svg width="960" height="500"></svg><script src="d3.min.js"></script><script>
 
-    var width = 600, height = 600;
+    var width = 960, height = 500;
 
     var margin = ({top: 10, right: 10, bottom: 20, left: 40});
 
     formatValue = x => isNaN(x) ? "N/A" : x.toLocaleString("en");
 
     var data =  [
-        {name: "CA",
-            "<10": 5038433,
-            "10-19": 5170341,
-            "20-29": 5809455,
-            "total": 38654206},{
-            name: "TX",
-            "<10": 2038433,
-            "10-19": 2170341,
-            "20-29": 4809455,
-            "total": 18654206}
-
+        {name: "bucket1",
+            "met1": "5038433",
+            "met2": "5170341",
+            "met3": "5809455",
+            },{
+            name: "bucket2",
+            "met1": 2038433,
+            "met2": 2170341,
+            "met3": 4809455,},
     ];
 
     var columns = [
-        "<10",
-        "10-19",
-        "20-29"];
+        "met1",
+        "met2",
+        "met3"];
 
     var series = d3.stack()
         .keys(columns)
         (data)
         .map(d => (d.forEach(v => v.key = d.key), d));
 
+    console.log(series);
+
     var color = d3.scaleOrdinal()
         .domain(series.map(d => d.key))
-    .range(d3.schemeSpectral[series.length])
+    .range(d3.schemeSpectral[series.length + 1])
         .unknown("#ccc");
+
+    console.log(color);
 
     x = d3.scaleBand()
         .domain(data.map(d => d.name))
