@@ -7,6 +7,7 @@ import umontreal.ssj.gof.GofStat;
 import umontreal.ssj.probdist.*;
 
 import java.io.*;
+import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -26,7 +27,12 @@ public class GeneratePerfLogs {
         ArrayList<Double> samples = getSamplesFromLog("logs.txt",
                 "lookupIngredientNutrition");
 
-        getBestDistributionFromEmpiricalData(getSamplesFromLog("logs.txt", "lookupOnApiIngredientDetails"));
+        try {
+            getBestDistributionFromEmpiricalData(
+                    getSamplesFromLog("logs.txt", "lookupOnApiIngredientDetails"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         System.out.println(System.currentTimeMillis() - start);
 
@@ -41,7 +47,7 @@ public class GeneratePerfLogs {
             UnsupportedEncodingException, UnirestException {
         HttpResponse<String> response;
         String[] qParams = {"greek salad", "ham sandwich", "cheese omelette", "sardines on toast", "canned spam"};
-        for(int j = 0; j < 100; j++) {
+        for (int j = 0; j < 100; j++) {
             for (int i = 0; i < 5; i++) {
                 response = Unirest.get("https://mmorpg-perf.herokuapp.com/?q=" +
                         URLEncoder.encode(qParams[i], "UTF-8"))
@@ -140,16 +146,27 @@ public class GeneratePerfLogs {
         return samples;
     }
 
-    // This method is based on Kolmogorov Smirnov test, but any other could work.
-    public static Distribution getBestDistributionFromEmpiricalData(ArrayList<Double> data) {
+    public static Distribution getBestDistributionFromEmpiricalData(ArrayList<Double> data) throws Exception {
+        Class[] distClasses = {NormalDist.class, LaplaceDist.class, UniformDist.class};
+        return getBestDistributionFromEmpiricalData(data, distClasses);
+    }
+
+    // This method is based on Kolmogorov Smirnov test, but any other could work
+    // TODO: make this method support non-cont distr.
+    public static Distribution getBestDistributionFromEmpiricalData(ArrayList<Double> data,
+                                                                    Class[] distributionClasses)
+            throws Exception {
+
         double[] dataArray = data.stream().mapToDouble(Double::doubleValue).toArray();
 
-        List<Distribution> distributionList = new ArrayList() {{
-            add(NormalDist.getInstanceFromMLE(dataArray, dataArray.length));
-            add(UniformDist.getInstanceFromMLE(dataArray, dataArray.length));
-            add(LaplaceDist.getInstanceFromMLE(dataArray, dataArray.length));
-            //add(CauchyDist.getInstanceFromMLE(dataArray, dataArray.length));
-        }};
+        List<ContinuousDistribution> distributionList = new ArrayList<>();
+
+        for (Class distributionClass : distributionClasses) {
+            Class[] parameters = {double[].class, int.class};
+            Method method = distributionClass.getDeclaredMethod("getInstanceFromMLE", parameters);
+            distributionList.add(
+                    (ContinuousDistribution) method.invoke(distributionClass, dataArray, dataArray.length));
+        }
 
         int distributionListLen = distributionList.size();
         double[][] sval = new double[distributionList.size()][3];
@@ -159,7 +176,7 @@ public class GeneratePerfLogs {
         double maxPval = -1d;
 
         for (int i = 0; i < distributionListLen; i++) {
-            GofStat.kolmogorovSmirnov(dataArray, (ContinuousDistribution) distributionList.get(i), sval[i], pval[i]);
+            GofStat.kolmogorovSmirnov(dataArray, distributionList.get(i), sval[i], pval[i]);
             if (maxPval < pval[i][2]) {
                 maxPval = pval[i][2];
                 maxPvalIndex = i;

@@ -36,7 +36,7 @@ public class DBTest {
     public JUnitRuleMockery context = new JUnitRuleMockery();
 
     @Test
-    public void getNutritionalDataForMeal() {
+    public void getNutritionalDataForMeal() throws Exception {
         final DBController dbController = context.mock(DBController.class);
 
         final Distribution lmiDistr = getBestDistributionFromEmpiricalData(
@@ -59,12 +59,12 @@ public class DBTest {
     }
 
     @Test
-    public void getNutritionalDataForSuggestedMeal() {
+    public void getNutritionalDataForSuggestedMeal() throws Exception {
         final DBController dbController = context.mock(DBController.class);
 
         final Distribution ltmbyDistr = getBestDistributionFromEmpiricalData(
                 getSamplesFromLog("logs.txt", "lookupTopMealByComplexity"));
-
+        //TODO: FACTOR in getSamplesFromLog i.e. my method is x2 times better than the data
         final int dishComplexity = 3;
 
         context.repeat(100, () -> {
@@ -79,6 +79,6 @@ public class DBTest {
 
             new QueryProcessor(dbController).suggestAMeal(dishComplexity);
         });
-        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(2000.0)));
+        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(1000.0)));
     }
 }
