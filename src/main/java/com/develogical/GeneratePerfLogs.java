@@ -7,6 +7,7 @@ import umontreal.ssj.gof.GofStat;
 import umontreal.ssj.probdist.*;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -15,32 +16,30 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.IntStream;
-
-import static java.util.Comparator.comparingDouble;
 
 public class GeneratePerfLogs {
     public static void main(String[] args) {
 //        createLogFile();
-        long start = System.currentTimeMillis();
-
-        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
-                "lookupIngredientNutrition");
-
-        try {
-            getBestDistributionFromEmpiricalData(
-                    getSamplesFromLog("logs.txt", "lookupOnApiIngredientDetails"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        System.out.println(System.currentTimeMillis() - start);
 
 //        try {
 //            runForSomeTimeAndGenerateLogsOnHeroku();
 //        } catch (Exception e) {
 //            e.printStackTrace();
 //        }
+
+//        long start = System.currentTimeMillis();
+//
+//        ArrayList<Double> samples = getSamplesFromLog("logs.txt",
+//                "lookupIngredientNutrition");
+//
+        try {
+            getBestDistributionFromEmpiricalData(
+                    getSamplesFromLog("logs.txt", "lookupOnApiIngredientDetails"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+//
+//        System.out.println(System.currentTimeMillis() - start);
     }
 
     public static void runForSomeTimeAndGenerateLogsOnHeroku() throws InterruptedException,
@@ -159,6 +158,12 @@ public class GeneratePerfLogs {
 
         double[] dataArray = data.stream().mapToDouble(Double::doubleValue).toArray();
 
+        List<ContinuousDistribution> distributionList = getBestInstancesFromDistList(distributionClasses, dataArray);
+
+        return getBestDistributionViaGoodnessToFitTest(dataArray, distributionList);
+    }
+
+    private static List<ContinuousDistribution> getBestInstancesFromDistList(Class[] distributionClasses, double[] dataArray) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         List<ContinuousDistribution> distributionList = new ArrayList<>();
 
         for (Class distributionClass : distributionClasses) {
@@ -168,6 +173,12 @@ public class GeneratePerfLogs {
                     (ContinuousDistribution) method.invoke(distributionClass, dataArray, dataArray.length));
         }
 
+        distributionList.add(MixtureDistribution.findBestMixedDistribution(dataArray, distributionList));
+
+        return distributionList;
+    }
+
+    public static Distribution getBestDistributionViaGoodnessToFitTest(double[] dataArray, List<ContinuousDistribution> distributionList) {
         int distributionListLen = distributionList.size();
         double[][] sval = new double[distributionList.size()][3];
         double[][] pval = new double[distributionList.size()][3];
