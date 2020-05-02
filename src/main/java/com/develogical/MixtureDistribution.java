@@ -16,8 +16,9 @@ public class MixtureDistribution extends ContinuousDistribution {
         }
 
         double weightSum = Arrays.stream(weights).sum();
-        if (weightSum != 1.0) {
-            throw new IllegalArgumentException("Weights must add up to exactly 1.0, but sum is " + weightSum);
+        if (weightSum - 1.0 < 0.001) {
+            throw new IllegalArgumentException("Weights must add up to exactly 1.0 " +
+                    "(with error 0.001), but sum is " + weightSum);
         }
 
         this.weights = weights;
