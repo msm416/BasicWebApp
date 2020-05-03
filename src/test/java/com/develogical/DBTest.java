@@ -10,9 +10,9 @@ import umontreal.ssj.probdist.NormalDist;
 
 import java.util.ArrayList;
 
-import static com.develogical.GeneratePerfLogs.getBestDistributionFromEmpiricalData;
-import static com.develogical.GeneratePerfLogs.getSamplesFromLog;
 import static org.hamcrest.number.OrderingComparison.lessThan;
+import static org.jmock.utils.LogsAndDistr.getBestDistributionFromEmpiricalData;
+import static org.jmock.utils.LogsAndDistr.getSamplesFromLog;
 import static org.junit.Assert.assertThat;
 import static utilities.distributions.PerfStatistics.hasPercentile;
 
