@@ -34,6 +34,8 @@ public class QueryProcessor {
         long endTime = System.currentTimeMillis();
         System.out.println("EXECTIME(ms) for lookupTopMealByComplexity() = " + (endTime - startTime));
 
+
+        long startTimeMixture = System.currentTimeMillis();
         int remNbOfApiCalls = 5;
         for(String ingredient : suggestedMeal.split(":")[1].split(",")) {
             if(remNbOfApiCalls == 0) {
@@ -46,7 +48,8 @@ public class QueryProcessor {
 
             remNbOfApiCalls --;
         }
-
+        long endTimeMixture = System.currentTimeMillis();
+        System.out.println("EXECTIME(ms) for sumOflookupOnApiIngredientDetails() = " + (endTimeMixture - startTimeMixture));
         return suggestedMeal.split(":")[0];
     }
 }
