@@ -49,7 +49,7 @@ public class QueryProcessor {
             remNbOfApiCalls --;
         }
         long endTimeMixture = System.currentTimeMillis();
-        System.out.println("EXECTIME(ms) for sumOflookupOnApiIngredientDetails() = " + (endTimeMixture - startTimeMixture));
+        System.out.println("EXECTIME(ms) for combinedlookupOnApiIngredientDetails() = " + (endTimeMixture - startTimeMixture));
         return suggestedMeal.split(":")[0];
     }
 }
