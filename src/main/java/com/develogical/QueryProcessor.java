@@ -13,7 +13,7 @@ public class QueryProcessor {
         long startTime = System.currentTimeMillis();
         List<Ingredient> mealIngredients = dbController.lookupMealIngredients(meal);
         long endTime = System.currentTimeMillis();
-        System.out.println("EXECTIME(ms) for lookupMealIngredients() = " + (endTime - startTime));
+        //System.out.println("EXECTIME(ms) for lookupMealIngredients() = " + (endTime - startTime));
         //System.out.println("nb of ingredients in meal: " + mealIngredients.size());
 
         double kcals = 0.0;
@@ -21,7 +21,7 @@ public class QueryProcessor {
             startTime = System.currentTimeMillis();
             kcals += dbController.lookupIngredientNutrition(ingredient);
             endTime = System.currentTimeMillis();
-            System.out.println("EXECTIME(ms) for lookupIngredientNutrition() = " + (endTime - startTime));
+            //System.out.println("EXECTIME(ms) for lookupIngredientNutrition() = " + (endTime - startTime));
         }
         //System.out.println("nb of kcals in meal: "  + kcals);
         return "nb of kcals in meal: "  + kcals;
@@ -32,7 +32,7 @@ public class QueryProcessor {
         long startTime = System.currentTimeMillis();
         String suggestedMeal = dbController.lookupTopMealByComplexity(dishComplexity);
         long endTime = System.currentTimeMillis();
-        System.out.println("EXECTIME(ms) for lookupTopMealByComplexity() = " + (endTime - startTime));
+        //System.out.println("EXECTIME(ms) for lookupTopMealByComplexity() = " + (endTime - startTime));
 
 
         long startTimeMixture = System.currentTimeMillis();
@@ -44,12 +44,12 @@ public class QueryProcessor {
             startTime = System.currentTimeMillis();
             dbController.lookupOnApiIngredientDetails(ingredient);
             endTime = System.currentTimeMillis();
-            System.out.println("EXECTIME(ms) for lookupOnApiIngredientDetails() = " + (endTime - startTime));
+            //System.out.println("EXECTIME(ms) for lookupOnApiIngredientDetails() = " + (endTime - startTime));
 
             remNbOfApiCalls --;
         }
         long endTimeMixture = System.currentTimeMillis();
-        System.out.println("EXECTIME(ms) for combinedlookupOnApiIngredientDetails() = " + (endTimeMixture - startTimeMixture));
+        //System.out.println("EXECTIME(ms) for combinedlookupOnApiIngredientDetails() = " + (endTimeMixture - startTimeMixture));
         return suggestedMeal.split(":")[0];
     }
 }

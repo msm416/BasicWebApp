@@ -24,12 +24,6 @@ public class DBTest {
         add(new Ingredient("ingr3", 100));
         add(new Ingredient("ingr4", 100));
         add(new Ingredient("ingr5", 100));
-        add(new Ingredient("ingr6", 100));
-        add(new Ingredient("ingr7", 100));
-        add(new Ingredient("ingr8", 100));
-        add(new Ingredient("ingr9", 100));
-        add(new Ingredient("ingr10", 100));
-        add(new Ingredient("ingr11", 100));
     }};
 
     @Rule
@@ -39,23 +33,32 @@ public class DBTest {
     public void getNutritionalDataForMeal() throws Exception {
         final DBController dbController = context.mock(DBController.class);
 
-        final Distribution lmiDistr = getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupMealIngredients"));
+//        final Distribution lookupMealIngredientsDistr = getBestDistributionFromEmpiricalData(
+//                getSamplesFromLog("logs.txt", "lookupMealIngredients"));
+//
+//        final Distribution lookupIngredientNutritionDistr = getBestDistributionFromEmpiricalData(
+//                getSamplesFromLog("logs.txt", "lookupIngredientNutrition"));
 
         final String meal = "cheeseburger";
         context.repeat(1000, () -> {
-                    context.checking(new Expectations() {{
-                        exactly(1).of(dbController).lookupMealIngredients(meal);
-                        will(returnValue(mealIngredients));
-                        inTime(lmiDistr);
-                        exactly(mealIngredients.size()).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
-                        will(returnValue(200.0));
-                        inTime(new NormalDist(100, 10));
-                    }});
 
-                    new QueryProcessor(dbController).getNutritionalData(meal);
-                });
-        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(8000.0)));
+            int nbOfcalls = 5;
+            //int nbOfcalls = (int) (Math.random() * 5) + 1;
+
+            context.checking(new Expectations() {{
+                exactly(1).of(dbController).lookupMealIngredients(meal);
+                will(returnValue(mealIngredients.subList(0, nbOfcalls)));
+                inTime(new NormalDist(50, 5));
+                //inTime(lookupMealIngredientsDistr);
+                exactly(nbOfcalls).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
+                will(returnValue(200.0));
+                inTime(new NormalDist(25, 5));
+                //inTime(lookupIngredientNutritionDistr);
+            }});
+
+            new QueryProcessor(dbController).getNutritionalData(meal);
+        });
+        assertThat(context.getMultipleVirtualTimes(false), hasPercentile(80, lessThan(200.0)));
     }
 
     @Test
@@ -79,6 +82,6 @@ public class DBTest {
 
             new QueryProcessor(dbController).suggestAMeal(dishComplexity);
         });
-        assertThat(context.getMultipleVirtualTimes(), hasPercentile(80, lessThan(1000.0)));
+        assertThat(context.getMultipleVirtualTimes(false), hasPercentile(80, lessThan(1000.0)));
     }
 }
