@@ -3,6 +3,7 @@ package com.develogical;
 import org.jmock.Expectations;
 import org.jmock.integration.junit4.JUnitRuleMockery;
 import org.jmock.lib.concurrent.Synchroniser;
+import org.jmock.utils.SequentialCallsDist;
 import org.junit.Rule;
 import org.junit.Test;
 import umontreal.ssj.probdist.Distribution;
@@ -46,13 +47,18 @@ public class DBTest {
                 getSamplesFromLog("logs.txt", "lookupIngredientNutrition"),
                 "lookupIngredientNutritionDistr");
 
-//        double adjFactor = getAdjustmentFactor(getBestDistributionFromEmpiricalData(
-//                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombined"),
-//                "lookupIngredientNutritionCombinedDistr"), getBestDistributionFromEmpiricalData(
-//                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel"),
-//                "lookupIngredientNutritionCombinedParallelDistr"));
+        double adjFactor = computeAdjustmentFactor(
+
+//                getBestDistributionFromEmpiricalData(
+//                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedSequential"),
+//                "lookupIngredientNutritionCombinedDistr"),
+                new SequentialCallsDist(new UniformIntDist(1, 5), lookupIngredientNutritionDistr),
+
+                getBestDistributionFromEmpiricalData(
+                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel"),
+                "lookupIngredientNutritionCombinedParallelDistr"));
 //
-//        System.out.println("ADJ factor " + adjFactor);
+        System.out.println("ADJ factor " + adjFactor);
         final Distribution nbOfCallsDist = new UniformIntDist(1, 5);
 
         final String meal = "cheeseburger";
@@ -69,8 +75,8 @@ public class DBTest {
                 will(returnValue(200.0));
                 //inTime(new NormalDist(25, 5));
                 inTime(lookupIngredientNutritionDistr
-                        , 1.5
-//                       , adjFactor
+//                        , 1.5
+                       , adjFactor
                 );
             }});
 
