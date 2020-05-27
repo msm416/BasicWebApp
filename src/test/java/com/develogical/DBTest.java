@@ -33,57 +33,59 @@ public class DBTest {
     @Rule
     public JUnitRuleMockery context = new JUnitRuleMockery() {{
         setThreadingPolicy(new Synchroniser());
-    }};;
+    }};
 
     @Test
     public void getNutritionalDataForMeal() throws Exception {
         final DBController dbController = context.mock(DBController.class);
 
         final Distribution lookupMealIngredientsDistr = getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupMealIngredients"),
+                getSamplesFromLog("logs.txt", "lookupMealIngredients", 0.2),
                 "lookupMealIngredientsDistr");
 
         final Distribution lookupIngredientNutritionDistr = getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupIngredientNutrition"),
+                getSamplesFromLog("logs.txt", "lookupIngredientNutrition", 0.2),
                 "lookupIngredientNutritionDistr");
 
         double adjFactor = computeAdjustmentFactor(
 
-//                getBestDistributionFromEmpiricalData(
-//                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedSequential"),
-//                "lookupIngredientNutritionCombinedDistr"),
-                new SequentialCallsDist(new UniformIntDist(1, 5), lookupIngredientNutritionDistr),
+                getBestDistributionFromEmpiricalData(
+                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedSequential", 0.2),
+                "lookupIngredientNutritionCombinedDistr"),
+//                new SequentialCallsDist(new UniformIntDist(1, 5), lookupIngredientNutritionDistr),
 
                 getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel"),
+                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel", 0.2),
                 "lookupIngredientNutritionCombinedParallelDistr"));
 //
         System.out.println("ADJ factor " + adjFactor);
+
         final Distribution nbOfCallsDist = new UniformIntDist(1, 5);
 
         final String meal = "cheeseburger";
         context.repeat(1000, () -> {
 
             int nbOfcalls = (int) nbOfCallsDist.inverseF(Math.random());
+//            int nbOfcalls = 5;
 
             context.checking(new Expectations() {{
                 exactly(1).of(dbController).lookupMealIngredients(meal);
                 will(returnValue(mealIngredients.subList(0, nbOfcalls)));
-                //inTime(new NormalDist(50, 5));
+//                inTime(new NormalDist(25, 5));
                 inTime(lookupMealIngredientsDistr);
                 exactly(nbOfcalls).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
                 will(returnValue(200.0));
-                //inTime(new NormalDist(25, 5));
+//                inTime(new NormalDist(25, 5));
                 inTime(lookupIngredientNutritionDistr
-//                        , 1.5
-                       , adjFactor
+                        , 1.3
+//                       , adjFactor
                 );
             }});
 
             new QueryProcessor(dbController).getNutritionalData(meal);
         });
 
-        assertThat(context.getMultipleVirtualTimes(false), hasPercentile(80, lessThan(200.0)));
+        assertThat(context.getMultipleVirtualTimes(false), hasPercentile(75, lessThan(200.0)));
     }
 
     @Test
@@ -91,7 +93,7 @@ public class DBTest {
         final DBController dbController = context.mock(DBController.class);
 
         final Distribution ltmbyDistr = getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupTopMealByComplexity"),
+                getSamplesFromLog("logs.txt", "lookupTopMealByComplexity", 0.2),
                 "ltmbyDistr");
         //TODO: FACTOR in getSamplesFromLog i.e. my method is x2 times better than the data
         final int dishComplexity = 3;
