@@ -10,6 +10,7 @@ public class QueryProcessor {
     }
 
     public String getNutritionalData(String meal) {
+        long getNDST = System.currentTimeMillis();
         //long startTime = System.currentTimeMillis();
         List<Ingredient> mealIngredients = dbController.lookupMealIngredients(meal);
         long startTime = System.currentTimeMillis();
@@ -26,7 +27,7 @@ public class QueryProcessor {
         }
 
         long endTime = System.currentTimeMillis();
-        System.out.println("EXECTIME(ms) for lookupIngredientNutritionCombinedSequential() = " + (endTime - startTime));
+//        System.out.println("EXECTIME(ms) for lookupIngredientNutritionCombinedSequential() = " + (endTime - startTime));
 
 //        double kcals_par = mealIngredients.parallelStream()
 //                .map(dbController::lookupIngredientNutrition)
@@ -35,6 +36,9 @@ public class QueryProcessor {
 //        System.out.println("EXECTIME(ms) for lookupIngredientNutritionCombinedParallel() = " + (endTime - startTime));
 
         //System.out.println("nb of kcals in meal: "  + kcals);
+        long getNDET = System.currentTimeMillis();
+        System.out.println("EXECTIME(ms) for getNutritionalData() = " + (getNDET - getNDST));
+
         return "nb of kcals in meal: "  + kcals;
     }
 

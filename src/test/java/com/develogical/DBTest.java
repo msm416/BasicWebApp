@@ -49,10 +49,10 @@ public class DBTest {
 
         double adjFactor = computeAdjustmentFactor(
 
-                getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedSequential", 0.2),
-                "lookupIngredientNutritionCombinedDistr"),
-//                new SequentialCallsDist(new UniformIntDist(1, 5), lookupIngredientNutritionDistr),
+//                getBestDistributionFromEmpiricalData(
+//                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedSequential", 0.2),
+//                "lookupIngredientNutritionCombinedDistr"),
+                new SequentialCallsDist(new UniformIntDist(1, 5), lookupIngredientNutritionDistr),
 
                 getBestDistributionFromEmpiricalData(
                 getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel", 0.2),
@@ -74,18 +74,18 @@ public class DBTest {
 //                inTime(new NormalDist(25, 5));
                 inTime(lookupMealIngredientsDistr);
                 exactly(nbOfcalls).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
-                will(returnValue(200.0));
+//                will(returnValue(200.0));
 //                inTime(new NormalDist(25, 5));
                 inTime(lookupIngredientNutritionDistr
-                        , 1.3
-//                       , adjFactor
+//                        , 1.444678668493453
+                       , adjFactor
                 );
             }});
 
             new QueryProcessor(dbController).getNutritionalData(meal);
         });
 
-        assertThat(context.getMultipleVirtualTimes(false), hasPercentile(75, lessThan(200.0)));
+        assertThat(context.getMultipleVirtualTimes(false), hasPercentile(80, lessThan(200.0)));
     }
 
     @Test
