@@ -26,8 +26,6 @@ public class WebServer {
     server.start();
   }
 
-  //TODO: REFACTOR THE CODE BELOW WITH 2 PARAMETERS
-  //TODO: API CLASS (?)
 
   static class Website extends HttpServlet {
 

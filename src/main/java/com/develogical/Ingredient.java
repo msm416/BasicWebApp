@@ -33,7 +33,6 @@ public class Ingredient {
         for(int i = 0; i < patterns.size(); i++) {
             Matcher matcher = patterns.get(i).matcher(ingredientAsStr);
             if(matcher.find()) {
-                //TODO: make this better
                 if(i == 0) {
                     return new Ingredient(matcher.group("name"), Double.parseDouble(matcher.group("grams")));
                 }

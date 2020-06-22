@@ -6,19 +6,15 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.jmock.utils.SequentialCallsDist;
 import org.junit.Rule;
 import org.junit.Test;
-import umontreal.ssj.probdist.Distribution;
-import umontreal.ssj.probdist.LaplaceDist;
-import umontreal.ssj.probdist.NormalDist;
-import umontreal.ssj.probdist.UniformIntDist;
+import umontreal.ssj.probdist.*;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.Arrays;
 
 import static org.hamcrest.number.OrderingComparison.lessThan;
 import static org.jmock.utils.LogsAndDistr.*;
+import static org.jmock.utils.PerfStatistics.hasPercentile;
 import static org.junit.Assert.assertThat;
-import static utilities.distributions.PerfStatistics.hasPercentile;
 
 public class DBTest {
 
@@ -49,16 +45,11 @@ public class DBTest {
 
         double adjFactor = computeAdjustmentFactor(
 
-//                getBestDistributionFromEmpiricalData(
-//                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedSequential", 0.2),
-//                "lookupIngredientNutritionCombinedDistr"),
                 new SequentialCallsDist(new UniformIntDist(1, 5), lookupIngredientNutritionDistr),
 
                 getBestDistributionFromEmpiricalData(
-                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel", 0.2),
-                "lookupIngredientNutritionCombinedParallelDistr"));
-//
-        System.out.println("ADJ factor " + adjFactor);
+                getSamplesFromLog("logs.txt", "lookupIngredientNutritionCombinedParallel", 0d),
+                        "lookupIngredientNutritionCombinedParallelDistr"));
 
         final Distribution nbOfCallsDist = new UniformIntDist(1, 5);
 
@@ -73,18 +64,16 @@ public class DBTest {
                 will(returnValue(mealIngredients.subList(0, nbOfcalls)));
 //                inTime(new NormalDist(25, 5));
                 inTime(lookupMealIngredientsDistr);
+
                 exactly(nbOfcalls).of(dbController).lookupIngredientNutrition(with(any(Ingredient.class)));
-//                will(returnValue(200.0));
 //                inTime(new NormalDist(25, 5));
                 inTime(lookupIngredientNutritionDistr
-//                        , 1.444678668493453
                        , adjFactor
                 );
             }});
 
             new QueryProcessor(dbController).getNutritionalData(meal);
         });
-
         assertThat(context.getMultipleVirtualTimes(false), hasPercentile(80, lessThan(200.0)));
     }
 
@@ -95,7 +84,6 @@ public class DBTest {
         final Distribution ltmbyDistr = getBestDistributionFromEmpiricalData(
                 getSamplesFromLog("logs.txt", "lookupTopMealByComplexity", 0.2),
                 "ltmbyDistr");
-        //TODO: FACTOR in getSamplesFromLog i.e. my method is x2 times better than the data
         final int dishComplexity = 3;
 
         context.repeat(100, () -> {
@@ -111,5 +99,77 @@ public class DBTest {
             new QueryProcessor(dbController).suggestAMeal(dishComplexity);
         });
         assertThat(context.getMultipleVirtualTimes(false), hasPercentile(80, lessThan(1000.0)));
+    }
+
+    public static DiscreteDistribution getDiscreteDistribution(double[] samples) {
+        //PRE: samples are ordered and positive
+        //POST: return a discrete distribution from samples
+
+        int n = samples.length;
+
+        int index = -1;
+
+        double prevVal = -1;
+
+        double[] prob = new double[n];
+
+        double[] newSamples = new double[n];
+
+        for(int i = 0; i < n; i++) {
+            if(prevVal != samples[i]) {
+                index++;
+                newSamples[index] = samples[i];
+            }
+
+            prob[index] += 1d/n;
+
+            prevVal = samples[i];
+        }
+
+        return new DiscreteDistribution(newSamples, prob, index + 1);
+    }
+
+    @Test
+    public void testAccuracyDiscreteContinuous() throws Exception {
+        String[] methods = new String[] {"lookupIngredientNutrition",
+        "lookupOnApiIngredientDetails", };
+        for(int j = 0; j < methods.length; j++) {
+            String methodName = methods[j];
+
+            int repetitions = 1000;
+
+            double[] samples = getSamplesFromLog("logs.txt", methodName, 0d);
+
+            double[] contDistSamples = new double[repetitions];
+
+            double[] discreteDistSamples = new double[repetitions];
+
+            final ContinuousDistribution continuousDist = (ContinuousDistribution) getBestDistributionFromEmpiricalData(
+                    getSamplesFromLog("logs.txt", methodName, 0d), "contDist");
+
+            final DiscreteDistribution discreteDist = getDiscreteDistribution(
+                    getSamplesFromLog("logs.txt", methodName, 0d));
+
+            for (int i = 0; i < repetitions; i++) {
+                // not allowed to sample negative virtual times
+                double contDistSam = 0d;
+                while(contDistSam <= 0) {
+                    contDistSam = continuousDist.inverseF(Math.random());
+                }
+                contDistSamples[i] = contDistSam;
+                discreteDistSamples[i] = discreteDist.inverseF(Math.random());
+            }
+
+            Arrays.sort(contDistSamples);
+            Arrays.sort(discreteDistSamples);
+
+            for(double k = 0d; k <= 1d; k+= 0.2) {
+
+                System.out.println("Real data             " + k + " percentile sample:" + samples[(int) ((samples.length-1) * k)]);
+                System.out.println("GoF best distribution " + k + " percentile sample:" + contDistSamples[(int)((repetitions-1) * k)]);
+                System.out.println("Discrete distribution " + k + " percentile sample:" + discreteDistSamples[(int)((repetitions-1) * k)]);
+                System.out.println();
+            }
+        }
     }
 }

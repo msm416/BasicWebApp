@@ -10,40 +10,22 @@ public class QueryProcessor {
     }
 
     public String getNutritionalData(String meal) {
-        long getNDST = System.currentTimeMillis();
-        //long startTime = System.currentTimeMillis();
         List<Ingredient> mealIngredients = dbController.lookupMealIngredients(meal);
-        long startTime = System.currentTimeMillis();
-        //long endTime = System.currentTimeMillis();
-        //System.out.println("EXECTIME(ms) for lookupMealIngredients() = " + (endTime - startTime));
-        //System.out.println("nb of ingredients in meal: " + mealIngredients.size());
 
-        double kcals = 0.0;
-        for(Ingredient ingredient : mealIngredients) {
-            //startTime = System.currentTimeMillis();
-            kcals += dbController.lookupIngredientNutrition(ingredient);
-            //endTime = System.currentTimeMillis();
-            //System.out.println("EXECTIME(ms) for lookupIngredientNutrition() = " + (endTime - startTime));
-        }
+//        double kcals = 0.0;
+//        for(Ingredient ingredient : mealIngredients) {
+//            kcals += dbController.lookupIngredientNutrition(ingredient);
+//        }
 
-        long endTime = System.currentTimeMillis();
-//        System.out.println("EXECTIME(ms) for lookupIngredientNutritionCombinedSequential() = " + (endTime - startTime));
-
-//        double kcals_par = mealIngredients.parallelStream()
-//                .map(dbController::lookupIngredientNutrition)
-//                .reduce(0d, (a,b) -> a + b);
-//        long endTime = System.currentTimeMillis();
-//        System.out.println("EXECTIME(ms) for lookupIngredientNutritionCombinedParallel() = " + (endTime - startTime));
-
-        //System.out.println("nb of kcals in meal: "  + kcals);
-        long getNDET = System.currentTimeMillis();
-        System.out.println("EXECTIME(ms) for getNutritionalData() = " + (getNDET - getNDST));
+        double kcals = mealIngredients.parallelStream()
+                .map(dbController::lookupIngredientNutrition)
+                .reduce(0d, (a,b) -> a + b);
 
         return "nb of kcals in meal: "  + kcals;
     }
 
     public String suggestAMeal(int dishComplexity) {
-        assert (1 <= dishComplexity && dishComplexity <= 5); //TODO: Move check to front-end
+        assert (1 <= dishComplexity && dishComplexity <= 5);
         long startTime = System.currentTimeMillis();
         String suggestedMeal = dbController.lookupTopMealByComplexity(dishComplexity);
         long endTime = System.currentTimeMillis();
